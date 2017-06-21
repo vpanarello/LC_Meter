@@ -2,6 +2,7 @@
 #define TIMER_ONE_H_
 
 #include "Arduino.h"
+#include "registers.h"
 
 #define WAVEFORM_NORMAL 0
 #define WAVEFORM_PWM_PHASE_CORRECT_8BIT 1
@@ -44,10 +45,6 @@ class TimerOne
 {
 private:
 public:
-  uint16_t *counter = &TCNT1;
-  uint16_t *compare_a = &OCR1A;
-  uint16_t *compare_b = &OCR1B;
-  uint16_t *capture = &ICR1;
 
   TimerOne(uint8_t, uint8_t);
   TimerOne(uint8_t, uint8_t, uint8_t, uint8_t);

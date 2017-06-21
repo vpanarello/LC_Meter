@@ -3,33 +3,30 @@
 
 FrequencyCounter::freq_counter FrequencyCounter::counter = {0};
 
-#define DISABLE_OVF_INTERRUPT interrupt->timer_0 &= 0b11111110
-#define ENABLE_OVF_INTERRUPT interrupt->timer_0 |= 0b00000001
-
 ISR(TIMER0_OVF_vect)
 {
     FrequencyCounter::counter.parts.high++;
 }
 
-uint32_t FrequencyCounter::get_counter() {
-    DISABLE_OVF_INTERRUPT;
+uint32_t* FrequencyCounter::get_counter_pointer() {
     counter.parts.low = timer0->counter;
-    ENABLE_OVF_INTERRUPT;
-    return counter.value;
+    return &counter.value;
 }
 
 void FrequencyCounter::clear_counter() {
-    DISABLE_OVF_INTERRUPT;
     counter.value = 0;
     timer0->counter = 0;
-    ENABLE_OVF_INTERRUPT;
     return;
 }
 
 FrequencyCounter::FrequencyCounter()
 {
-    timer0->control_a = 0x00;
-    timer0->control_b = 0x05;
+    /* frequency input pin PD7 (pin 6) */
+    ports->direction_d &= ~(1 << 7);
+    ports->state_d &= ~(1 << 7);
+
+    timer0->control_a = T0_NORMAL_MODE;
+    timer0->control_b = EXTERNAL_CLOCK_SOURCE;
     timer0->compare_a = 0xFF;
     ENABLE_OVF_INTERRUPT;
 }
