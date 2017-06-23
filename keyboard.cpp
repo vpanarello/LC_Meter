@@ -7,14 +7,7 @@ Keyboard::Keyboard()
     set_output_port(ports->direction_b, KEYPIN_B);
     set_output_port(ports->direction_e, KEYPIN_C);
     set_input_port(ports->direction_f, KEYSTATUS);
-
-/*
-    ports->direction_b |= (1 << KEYPIN_A);
-    ports->direction_b |= (1 << KEYPIN_B);
-    ports->direction_e |= (1 << KEYPIN_C);
-    ports->direction_f &= ~(1 << KEYSTATUS);
-    */
-
+    
     added_keys = 0;
     key = 0;
 
