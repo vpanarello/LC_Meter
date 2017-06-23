@@ -3,6 +3,7 @@
 #include "timer_one.h"
 #include <LiquidCrystal.h>
 #include "util.h"
+#include "keyboard.h"
 
 /* PORT B */
 #define LCD_DB7 15 /* pin 15 */
@@ -13,15 +14,21 @@
 /* PORT F */
 #define LCD_EN 18 /* pin A0 */
 #define LCD_RS 19 /* pin A1 */
+
 /* PORT D */
 #define LCD_LED 4
 #define LCD_LIGHT_ON ports->state_d &= ~(1 << LCD_LED)
 #define LCD_LIGHT_OFF ports->state_d |= (1 << LCD_LED)
 
+#define INDICATOR_LED_YELLOW 0 /* PORTB */
+#define INDICATOR_LED_GREEN 5 /* PORTD */
+
 FrequencyCounter *fcounter;
 TimerOne *timerone;
 /* LiquidCrystal lcd(RS, EN, D4, D5, D6, D7) */
 LiquidCrystal lcd(LCD_RS, LCD_EN, LCD_DB3, LCD_DB4, LCD_DB6, LCD_DB7);
+
+Keyboard *keys;
 
 void second_tick()
 {
@@ -35,6 +42,25 @@ void second_tick()
   lcd.print(" F");
   fcounter->clear_counter();
   timer0->control_b = EXTERNAL_CLOCK_SOURCE;
+}
+
+void presskey_00() {
+  Serial.println("Key 0");
+}
+void presskey_01() {
+  Serial.println("Key 1");
+}
+void presskey_02() {
+  Serial.println("Key 2");
+}
+void presskey_03() {
+  Serial.println("Key 3");
+}
+void presskey_04() {
+  Serial.println("Key 4");
+}
+void presskey_05() {
+  Serial.println("Key 5");
 }
 
 #define OS_OFFSET 1148
@@ -58,9 +84,39 @@ void setup()
   timerone = new TimerOne(CLK_DIV_1024, WAVEFORM_CTC_OCR1A);
   timer1->compare_a = ONE_SECOND_TIME;
   timerone->set_cb_comparator_a(&second_tick);
+  keys = new Keyboard();
+  keys->set_callback(&presskey_00);
+  keys->set_callback(&presskey_01);
+  keys->set_callback(&presskey_02);
+  keys->set_callback(&presskey_03);
+  keys->set_callback(&presskey_04);
+  // keys->set_callback(&presskey_05);
+
+  ports->direction_b |= (1 << INDICATOR_LED_YELLOW);
 }
+
+boolean pin_change;
 
 void loop()
 {
-  _delay_us(1000);
+  
+  for(uint8_t i = 0; i < 200; i++) {
+    _delay_ms(5);
+    keys->check_keys();
+  }
+  
+  
+  // dump_registers();
+}
+
+
+
+
+
+void dump_registers() {
+  for(uint8_t* pointer = 0x20; pointer < 0xF5; pointer++ ) {
+    Serial.print( (uint8_t) pointer, HEX);
+    Serial.print(" : ");
+    Serial.println(*pointer, BIN);
+  }
 }
