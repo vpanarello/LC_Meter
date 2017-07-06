@@ -1,3 +1,16 @@
+#include <Arduino.h>
+
+// Declared weak in Arduino.h to allow user redefinitions.
+int atexit(void (* /*func*/ )()) { return 0; }
+
+// Weak empty variant initialization function.
+// May be redefined by variant files.
+void initVariant() __attribute__((weak));
+void initVariant() { }
+
+void setupUSB() __attribute__((weak));
+void setupUSB() { }
+
 
 #include "libs/frequency_counter.h"
 #include "libs/timer_one.h"
@@ -102,8 +115,6 @@ void setup()
 }
 
 
-
-
 void dump_registers()
 {
     for (uint8_t *pointer = 0x20; pointer < 0xF5; pointer++)
@@ -117,9 +128,14 @@ void dump_registers()
 boolean pin_change;
 
 
-int main()
+int main(void)
 {
-    setup();
+	init();
+	initVariant();
+#if defined(USBCON)
+	USBDevice.attach();
+#endif
+	setup();
 
     for (;;)
     {
@@ -129,6 +145,9 @@ int main()
             keys->check_keys();
         }
 
+        if (serialEventRun) serialEventRun();
         // dump_registers();
     }
+            
+	return 0;
 }

@@ -27,7 +27,7 @@ AVR_TOOLS = /hardware/tools/avr/bin
 INCLUDES = -I"C:\opensource\arduino-1.8.1\hardware\arduino\avr\cores\arduino"
 #INCLUDES += -I"C:\opensource\arduino-1.8.1\hardware\arduino\avr\variants\standard"
 
-INCLUDES += -I"variants\promicro'
+INCLUDES += -I"variants\promicro"
 
 ########### PROJECT STRUCTURE ###########
 
@@ -46,10 +46,21 @@ AR = $(ARDUINO_FOLDER)$(AVR_TOOLS)\avr-gcc-ar
 DUMP = $(ARDUINO_FOLDER)$(AVR_TOOLS)\avr-objdump
 DUDE = $(ARDUINO_FOLDER)$(AVR_TOOLS)\avrdude
 SIZE = $(ARDUINO_FOLDER)$(AVR_TOOLS)\avr-size
+COPY = $(ARDUINO_FOLDER)$(AVR_TOOLS)\avr-objcopy
 
 ########### AVR PREPROCESSOR DIRECTIVES ###########
 
-DIRECTIVES = -DF_CPU=$(MCU_CLK)
+#"avr-g++" -c -g -Os -Wall -Wextra -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -MMD -flto
+
+#-mmcu=atmega32u4
+#-DF_CPU=16000000L 
+#-DARDUINO=10801 
+#-DARDUINO_AVR_PROMICRO 
+#-DARDUINO_ARCH_AVR  -
+#DUSB_VID=0x1b4f -DUSB_PID=0x9206 '-DUSB_MANUFACTURER="Unknown"' '-DUSB_PRODUCT="SparkFun Pro Micro"' "-IC:\opensource\arduino-1.8.1\hardware\arduino\avr\cores\arduino" "-IC:\Users\VagnerF\AppData\Local\Arduino15\packages\SparkFun\hardware\avr\1.1.5\variants\promicro"
+
+DIRECTIVES = -mmcu=$(MCU)
+DIRECTIVES += -DF_CPU=$(MCU_CLK)
 DIRECTIVES += -DARDUINO=10801
 DIRECTIVES += -DARDUINO_AVR_PROMICRO
 DIRECTIVES += -DARDUINO_ARCH_AVR
@@ -58,7 +69,7 @@ DIRECTIVES += -DUSB_PID=0x9206
 DIRECTIVES += '-DUSB_MANUFACTURER="Unknown"'
 DIRECTIVES += '-DUSB_PRODUCT="SparkFun Pro Micro"'
 
-MCU_SPECS = -mmcu=$(MCU) $(DIRECTIVES)
+# MCU_SPECS = -mmcu=$(MCU) $(DIRECTIVES)
  
 ########### AVR COMPILER DEFINITIONS ###########
 
@@ -74,14 +85,14 @@ AR_FLAGS = rcs -v
 
 ########### AVR COMPILERS ###########
 
-GCC_COMPILER = "$(GCC)" $(GCC_FLAGS) $(MCU_SPECS) $(INCLUDES)
-GPP_COMPILER = "$(GPP)" $(GPP_FLAGS) $(MCU_SPECS) $(INCLUDES)
+GCC_COMPILER = "$(GCC)" $(GCC_FLAGS) $(DIRECTIVES) $(INCLUDES)
+GPP_COMPILER = "$(GPP)" $(GPP_FLAGS) $(DIRECTIVES) $(INCLUDES)
 
 AR_LINKER = "$(AR)" $(AR_FLAGS)
 
 ########### AVR LINKERS ###########
 
-LINKER_FLAGS = -Wall -Wextra -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections $(MCU_SPECS)
+LINKER_FLAGS = -Wall -Wextra -Os -g -flto -fuse-linker-plugin -Wl,--gc-sections $(DIRECTIVES)
 LINKER_OBJ = -o "$(GCC_SOURCES) $(GPP_SOURCES)"
 
 OBJECT_FILES = $(wildcard $(BUILD_FOLDER)*.o)
@@ -150,11 +161,13 @@ AVRDUDE_FLAGS += $(AVRDUDE_D_FLAG)
  
 ########### BUILD RECIPES ###########
 
-all: compile link size
+all: compile link tohex size
 
 test:
 
 compile:
+	@echo $(GPP_COMPILER)
+	@echo $(GCC_COMPILER)
 	@for filename in $(GPP_SOURCES); \
 		do \
 			echo "*** Compiling C++ Source '$$filename' -> '$(BUILD_FOLDER)$${filename//[a-zA-Z0-9_]*[\/]}.o'"; \
