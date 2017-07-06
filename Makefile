@@ -50,15 +50,6 @@ COPY = $(ARDUINO_FOLDER)$(AVR_TOOLS)\avr-objcopy
 
 ########### AVR PREPROCESSOR DIRECTIVES ###########
 
-#"avr-g++" -c -g -Os -Wall -Wextra -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -MMD -flto
-
-#-mmcu=atmega32u4
-#-DF_CPU=16000000L 
-#-DARDUINO=10801 
-#-DARDUINO_AVR_PROMICRO 
-#-DARDUINO_ARCH_AVR  -
-#DUSB_VID=0x1b4f -DUSB_PID=0x9206 '-DUSB_MANUFACTURER="Unknown"' '-DUSB_PRODUCT="SparkFun Pro Micro"' "-IC:\opensource\arduino-1.8.1\hardware\arduino\avr\cores\arduino" "-IC:\Users\VagnerF\AppData\Local\Arduino15\packages\SparkFun\hardware\avr\1.1.5\variants\promicro"
-
 DIRECTIVES = -mmcu=$(MCU)
 DIRECTIVES += -DF_CPU=$(MCU_CLK)
 DIRECTIVES += -DARDUINO=10801
@@ -68,8 +59,6 @@ DIRECTIVES += -DUSB_VID=0x1b4f
 DIRECTIVES += -DUSB_PID=0x9206
 DIRECTIVES += '-DUSB_MANUFACTURER="Unknown"'
 DIRECTIVES += '-DUSB_PRODUCT="SparkFun Pro Micro"'
-
-# MCU_SPECS = -mmcu=$(MCU) $(DIRECTIVES)
  
 ########### AVR COMPILER DEFINITIONS ###########
 
@@ -228,10 +217,6 @@ tohex: $(BUILD_FOLDER)$(basename $(MAIN_FILE)).elf
 	@echo "*** Converting to intel hexadecimal format... '$(BUILD_FOLDER)$(basename $(MAIN_FILE)).elf' -> '$(BUILD_FOLDER)$(basename $(MAIN_FILE)).hex' "
 	@"$(COPY)" $(OBJCOPY_TAGS) "$(BUILD_FOLDER)$(basename $(MAIN_FILE)).elf" "$(BUILD_FOLDER)$(basename $(MAIN_FILE)).hex"
  
-# "C:\opensource\arduino-1.8.1\hardware\tools\avr/bin/avr-objcopy" -O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0  "C:\Users\VagnerF\AppData\Local\Temp\arduino_build_909140/sketch_jun15a.ino.elf" "C:\Users\VagnerF\AppData\Local\Temp\arduino_build_909140/sketch_jun15a.ino.eep"
-# "C:\opensource\arduino-1.8.1\hardware\tools\avr/bin/avr-objcopy" -O ihex -R .eeprom  "C:\Users\VagnerF\AppData\Local\Temp\arduino_build_909140/sketch_jun15a.ino.elf" "C:\Users\VagnerF\AppData\Local\Temp\arduino_build_909140/sketch_jun15a.ino.hex"
-
-
 ########### DEVICE PROGRAM RECIPES ###########
 
 program: $(BUILD_FOLDER)$(basename $(MAIN_FILE)).hex
